@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="YZ.Z1.dao.MemberDao">
+
+	<insert id="insertRegister">
+		INSERT INTO ESC_USER
+		(USER_ID,USER_NAME,USER_PW,USER_BIRTH,USER_MBTI,USER_STYLE,USER_ADDRESS,USER_CAREER,USER_HEIGHT,USER_WEIGHT,USER_IMG,USER_HOBBY,USER_EMAIL,USER_NICKNAME,USER_PHONENUMBER,USER_GENDER,USER_IDEALTYPE,USER_PR,USER_PS,USER_PERSONALITY,USER_REGDATE,USER_STATE)
+		VALUES(#{user_id},
+		<choose>
+			<when test="user_name != null">
+				#{user_name},
+			</when>
+			<otherwise>
+				NULL,
+			</otherwise>
+		</choose>
+		#{user_pw},
+		<choose>
+			<when test="user_birth != null">
+				#{user_birth},
+			</when>
+			<otherwise>
+				NULL,
+			</otherwise>
+		</choose>
+		<choose>
+			<when test="user_mbti != null">
+				#{user_mbti},
+			</when>
+			<otherwise>
+				NULL,
+			</otherwise>
+		</choose>
+		<choose>
+			<when test="user_style != null">
+				#{user_style},
+			</when>
+			<otherwise>
+				NULL,
+			</otherwise>
+		</choose>
+		<choose>
+			<when test="user_address != null">
+				#{user_address},
+			</when>
+			<otherwise>
+				NULL,
+			</otherwise>
+		</choose>
+		<choose>
+			<when test="user_career != null">
+				#{user_career},
+			</when>
+			<otherwise>
+				NULL,
+			</otherwise>
+		</choose>
+		<choose>
+			<when test="user_height != null">
+				#{user_height},
+			</when>
+			<otherwise>
+				NULL,
+			</otherwise>
+		</choose>
+		<choose>
+			<when test="user_weight != null">
+				#{user_weight},
+			</when>
+			<otherwise>
+				NULL,
+			</otherwise>
+		</choose>
+		<choose>
+			<when test="user_img != null">
+				#{user_img},
+			</when>
+			<otherwise>
+				NULL,
+			</otherwise>
+		</choose>
+		<choose>
+			<when test="user_hobby != null">
+				#{user_hobby},
+			</when>
+			<otherwise>
+				NULL,
+			</otherwise>
+		</choose>
+		#{user_email}, #{user_nickname}, #{user_phonenumber}, #{user_gender},
+		<choose>
+			<when test="user_idealtype != null">
+				#{user_idealtype},
+			</when>
+			<otherwise>
+				NULL,
+			</otherwise>
+		</choose>
+		<choose>
+			<when test="user_pr != null">
+				#{user_pr},
+			</when>
+			<otherwise>
+				NULL,
+			</otherwise>
+		</choose>
+		<choose>
+			<when test="user_ps != null">
+				#{user_ps},
+			</when>
+			<otherwise>
+				NULL,
+			</otherwise>
+		</choose>
+		<choose>
+			<when test="user_personality != null">
+				#{user_personality},
+			</when>
+			<otherwise>
+				NULL,
+			</otherwise>
+		</choose>
+		SYSDATE, 'y')
+	</insert>
+	<insert id="insertcoordinates">
+		INSERT INTO ESC_COORDINATES (COORDINATES_USER,
+		COORDINATES_LOGITUDE,
+		COORDINATES_LATITUDE)
+		VALUES(#{id},#{x},#{y})
+	</insert>
+	<select id="SelectLogin">
+		SELECT * FROM ESC_USER
+		WHERE USER_ID = #{id}
+		<if test="pw != null">
+			AND USER_PW = #{pw}
+		</if>
+	</select>
+
+	<select id="selectUserNickName">
+	    SELECT USER_NICKNAME FROM ESC_USER 
+	    WHERE USER_ID = #{userid} 
+	</select>
+
+	<select id="selectUserProfileImg">
+		SELECT USER_IMG FROM ESC_USER
+		WHERE USER_ID =
+		#{userid}
+	</select>
+
+	<select id="selectXY" resultType="matchingxydto">
+		SELECT * FROM ESC_COORDINATES
+		WHERE COORDINATES_USER = #{userid}
+	</select>
+	<update id="updatecoordinates">
+		UPDATE ESC_COORDINATES
+		<set>
+			<if test="x != null">
+				COORDINATES_LOGITUDE = #{x},
+			</if>
+			<if test="y != null">
+				COORDINATES_LATITUDE = #{y}
+			</if>
+		</set>
+		WHERE COORDINATES_USER = #{userId}
+	</update>
+
+
+	<update id="updateProfile" parameterType="mdto">
+		UPDATE esc_user
+		<set>
+			<if test="user_name != null">
+				user_name = #{user_name},
+			</if>
+			<if test="user_pw != null and user_pw != ''">
+				user_pw = #{user_pw},
+			</if>
+			<if test="user_birth != null">
+				user_birth = #{user_birth},
+			</if>
+			<if test="user_mbti != null">
+				user_mbti = #{user_mbti},
+			</if>
+			<if test="user_style != null">
+				user_style = #{user_style},
+			</if>
+			<if test="user_address != null">
+				user_address = #{user_address},
+			</if>
+			<if test="user_career != null">
+				user_career = #{user_career},
+			</if>
+			<if test="user_height != null">
+				user_height = #{user_height},
+			</if>
+			<if test="user_weight != null">
+				user_weight = #{user_weight},
+			</if>
+			<if test="user_img != null">
+				user_img = #{user_img},
+			</if>
+			<if test="user_hobby != null">
+				user_hobby = #{user_hobby},
+			</if>
+			<if test="user_email != null">
+				user_email = #{user_email},
+			</if>
+			<if test="user_nickname != null and user_nickname != ''">
+				user_nickname = #{user_nickname},
+			</if>
+			<if test="user_phonenumber != null">
+				user_phonenumber = #{user_phonenumber},
+			</if>
+			<if test="user_gender != null and user_gender != ''">
+				user_gender = #{user_gender},
+			</if>
+			<if test="user_idealtype != null">
+				user_idealtype = #{user_idealtype},
+			</if>
+			<if test="user_pr != null">
+				user_pr = #{user_pr},
+			</if>
+			<if test="user_ps != null">
+				user_ps = #{user_ps},
+			</if>
+			<if test="user_personality != null">
+				user_personality = #{user_personality},
+			</if>
+			<if test="user_regdate != null">
+				user_regdate = #{user_regdate},
+			</if>
+			<if test="user_state != null">
+				user_state = #{user_state}
+			</if>
+		</set>
+		WHERE user_id = #{user_id}
+	</update>
+
+	<delete id="deletedate">
+		DELETE FROM ESC_CALENDAR WHERE CALENDAR_USERID =
+		#{startId} AND
+		CALENDAR_REGDATE =#{regdate}
+	</delete>
+
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

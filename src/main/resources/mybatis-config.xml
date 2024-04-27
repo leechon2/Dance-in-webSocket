@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+	<typeAliases>
+		<!-- DTO 별칭 설정 -->
+	<typeAlias type="YZ.Z1.dto.MBTIDTO" alias="mbtidto" />
+	<typeAlias type="YZ.Z1.dto.BookMarkDTO" alias="bookmarkdto" />
+	<typeAlias type="YZ.Z1.dto.BlockDTO" alias="blockdto" />
+	<typeAlias type="YZ.Z1.dto.MatchingDto" alias="matchingdto" />
+	<typeAlias type="YZ.Z1.dto.MatchingxyDTO" alias="matchingxydto" />
+	<typeAlias type="YZ.Z1.dto.CalendarDTO" alias="caldto" />
+	<typeAlias type="YZ.Z1.dto.MemberDto" alias="mdto"/>
+	<typeAlias type="YZ.Z1.dto.CoordinatesDTO" alias="coordinatesdto"/>
+	<typeAlias type="YZ.Z1.dto.BoardDTO" alias="board" />
+	</typeAliases>
+
+	<mappers>
+		<!-- 매퍼 설정 -->
+		<mapper resource="mapper/Matching.xml" />
+		<mapper resource="mapper/memberMapper.xml"/>
+		<mapper resource="mapper/BoardMapper.xml"/>
+<mapper resource="mapper/ChattingMapper.xml"/>
+	</mappers>
+
+</configuration>

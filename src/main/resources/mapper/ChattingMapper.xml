@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="YZ.Z1.dao.ChattingDao">
+	<select id="selectMatchingList">
+	    SELECT LEAST(MATCHING_REQID, MATCHING_RESPID) AS MIN_ID,
+       	GREATEST(MATCHING_REQID, MATCHING_RESPID) AS MAX_ID,
+       	COUNT(*) AS MATCH_COUNT
+		FROM ESC_MATCHING
+		WHERE (MATCHING_REQID = #{id} OR MATCHING_RESPID = #{id}) AND MATCHING_STATE = 'Y'
+		GROUP BY LEAST(MATCHING_REQID, MATCHING_RESPID), GREATEST(MATCHING_REQID, MATCHING_RESPID)
+	</select>
+	<select id="selectchatingList" resultType="mdto">
+	    SELECT USER_ID, USER_NICKNAME, USER_IMG FROM ESC_USER
+	    WHERE USER_ID = #{user_id} 
+	</select>	
+	<insert id="insertMessage">
+		INSERT INTO ESC_CHATTING(CHATTING_SENDID, CHATTING_RECEIVEID, CHATTING_MSG, CHATTING_REGDATE)
+		VALUES(#{user_id},#{user_reid},#{user_msg},SYSDATE)
+	</insert>
+	<select id="selectChattingList" resultType="hashmap">
+        SELECT * FROM ESC_CHATTING
+        WHERE (CHATTING_SENDID = #{chatting_sendid} AND CHATTING_RECEIVEID = #{chatting_receiveid})
+        	OR (CHATTING_SENDID = #{chatting_receiveid} AND CHATTING_RECEIVEID = #{chatting_sendid})  
+        ORDER BY CHATTING_REGDATE
+	</select>
+
+	
+</mapper>

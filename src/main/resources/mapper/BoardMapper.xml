@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="YZ.Z1.dao.BoardDAO">
+
+	<select id="selectMaxBoardNum">
+		SELECT NVL( MAX(BOARD_NUMBER),0 )
+		FROM ESC_SNSBOARD
+	</select>
+
+	<insert id="insertBoard">
+		INSERT INTO ESC_SNSBOARD(BOARD_NUMBER, BOARD_TITLE,
+		BOARD_ID, BOARD_CONTENT, BOARD_IMG, BOARD_VIEWS, BOARD_REGDATE)
+		VALUES( (SELECT NVL( MAX(BOARD_NUMBER),0 )+1 FROM ESC_SNSBOARD),
+		#{boardtitle}, #{boardid}, #{boardcontent}, #{boardimg}, 0, SYSDATE )
+	</insert>
+
+	<select id="selectBoardList" resultMap="boardResultMap"> SELECT * FROM
+		ESC_SNSBOARD ORDER BY BOARD_NUMBER DESC
+	</select>
+	<select id="getMyBoardList" resultMap="boardResultMap">
+		SELECT *
+		FROM ESC_SNSBOARD
+		WHERE BOARD_ID = #{startId}
+
+	</select>
+	<select id="selectByCondition" resultMap="boardResultMap">
+		SELECT *
+		FROM
+		ESC_SNSBOARD
+		WHERE ${condition} LIKE '%' || #{searchText} || '%'
+		ORDER
+		BY BOARD_NUMBER DESC
+	</select>
+	<select id="getHotList" resultMap="boardResultMap">
+		SELECT S.*,
+		COALESCE(L.TOTAL_LIKES, 0) AS TOTAL_LIKES
+		FROM ESC_SNSBOARD S
+		LEFT JOIN
+		(
+		SELECT BOARD_NUMBER, COUNT(LIKES_USERID) AS TOTAL_LIKES
+		FROM ESC_LIKES
+		GROUP BY BOARD_NUMBER
+		) L ON S.BOARD_NUMBER = L.BOARD_NUMBER
+		ORDER BY
+		TOTAL_LIKES DESC
+
+	</select>
+
+
+	<select id="getViewList" resultMap="boardResultMap">
+		SELECT *
+		FROM ESC_SNSBOARD
+		ORDER BY BOARD_VIEWS DESC
+
+
+	</select>
+
+	<select id="selectBoard" resultMap="boardResultMap">
+		SELECT *
+		FROM ESC_SNSBOARD
+		INNER JOIN ESC_USER
+		ON ESC_SNSBOARD.BOARD_ID = ESC_USER.USER_ID
+		WHERE
+		BOARD_NUMBER =
+		#{boardnumber}
+	</select>
+
+	<select id="selectBoardListByRecent" resultMap="boardResultMap">
+		SELECT *
+		FROM
+		(SELECT *
+		FROM ESC_SNSBOARD
+		ORDER BY BOARD_REGDATE DESC)
+		WHERE ROWNUM
+		BETWEEN 1 AND 5
+
+	</select>
+
+	<select id="selectBoardCommentList" resultMap="boardComment">
+		SELECT *
+		FROM
+		ESC_COMMENT
+		INNER JOIN ESC_USER
+		ON ESC_COMMENT.comment_user =
+		ESC_USER.user_id
+		WHERE BOARD_NUMBER =
+		#{boardnumber}
+		ORDER BY
+		COMMENT_REGDATE ASC
+	</select>
+
+	<resultMap type="YZ.Z1.dto.BoardCommentDTO" id="boardComment">
+		<result property="comment_user" column="comment_user" />
+		<result property="comment_content" column="comment_content" />
+		<result property="comment_regdate" column="comment_regdate" />
+		<result property="board_number" column="board_number" />
+		<result property="comment_number" column="comment_number" />
+		<association property="member"
+			javaType="YZ.Z1.dto.MemberDto">
+			<result property="user_id" column="user_id" />
+			<result property="user_img" column="user_img" />
+		</association>
+	</resultMap>
+
+	<insert id="insertComment">
+		INSERT INTO ESC_COMMENT(COMMENT_USER,
+		COMMENT_CONTENT, COMMENT_REGDATE, BOARD_NUMBER, COMMENT_NUMBER )
+		VALUES(#{comment_user}, #{comment_content}, SYSDATE, #{board_number},
+		#{comment_number} )
+	</insert>
+
+	<delete id="deleteBoard">
+		DELETE FROM ESC_BOARD
+		WHERE BOARD_NUMBER = #{boardnumber}
+		AND BOARD_ID = #{startId}
+	</delete>
+
+	<update id="updateComment">
+		UPDATE ESC_COMMENT
+		SET COMMENT_CONTENT = #{fixComment}
+		WHERE COMMENT_NUMBER = #{commentNumber}
+	</update>
+
+	<select id="selectMaxCommentNum">
+		SELECT NVL( MAX(COMMENT_NUMBER),0 )
+		FROM ESC_COMMENT
+	</select>
+
+	<update id="updateViews">
+		UPDATE ESC_SNSBOARD
+		SET BOARD_VIEWS = BOARD_VIEWS + 1
+		WHERE BOARD_NUMBER = #{boardNumber}
+	</update>
+
+	<delete id="deleteComment">
+		DELETE FROM ESC_COMMENT
+		WHERE COMMENT_NUMBER =
+		#{commentNumber}
+	</delete>
+
+	<select id="getSearchList" resultMap="boardResultMap">
+		SELECT *
+		FROM ESC_SNSBOARD
+		WHERE BOARD_TITLE LIKE CONCAT('%', #{searchContent}, '%')
+	</select>
+
+	<select id="getBoardLikes">
+		SELECT COUNT(LIKES_USERID)
+		FROM ESC_LIKES
+		WHERE
+		BOARD_NUMBER = #{boardnumber}
+	</select>
+
+	<insert id="insertBoardLikes">
+		INSERT INTO ESC_LIKES( BOARD_NUMBER, LIKES_USERID )
+		VALUES( #{boardnumber}, #{loginId} )
+	</insert>
+
+	<delete id="deleteBoardLikes">
+		DELETE FROM ESC_LIKES
+		WHERE BOARD_NUMBER =
+		#{boardnumber} AND LIKES_USERID = #{loginId}
+	</delete>
+
+
+	<select id="findBoardLikesAll">
+		SELECT *
+		FROM ESC_LIKES
+		WHERE BOARD_NUMBER =
+		#{boardnumber} AND LIKES_USERID = #{loginId}
+
+	</select>
+
+	<update id="updateBoardtitle">
+		UPDATE ESC_SNSBOARD
+		SET BOARD_TITLE = #{fixtitle}
+		WHERE BOARD_NUMBER = #{boardnumber}
+	</update>
+
+	<update id="updateBoardContent">
+		UPDATE ESC_SNSBOARD
+		SET BOARD_CONTENT = #{fixContent}
+		WHERE BOARD_NUMBER = #{boardnumber}
+	</update>
+
+
+	<update id="updateBoardComment">
+		UPDATE ESC_COMMENT
+		SET COMMENT_CONTENT =
+		#{comment_content}
+		WHERE COMMENT_NUMBER = #{comment_number}
+	</update>
+
+	<update id="updateBoard">
+		UPDATE ESC_SNSBOARD
+		SET BOARD_CONTENT =
+		#{boardcontent}, BOARD_IMG = #{boardimg}, BOARD_TITLE
+		= #{boardtitle}
+		WHERE BOARD_NUMBER = #{boardnumber}
+
+
+	</update>
+	<select id="selectOtherBoard" resultMap="boardResultMap">
+		SELECT *
+		FROM ESC_SNSBOARD
+		<choose>
+			<when test="findType == 'prev'">
+				WHERE BOARD_NUMBER = #{boardnumber} -1
+			</when>
+			<when test="findType == 'next'">
+				WHERE BOARD_NUMBER = #{boardnumber} +1
+			</when>
+		</choose>
+	</select>
+
+	<resultMap id="boardResultMap" type="board">
+		<result property="boardnumber" column="BOARD_NUMBER" />
+		<result property="boardtitle" column="BOARD_TITLE" />
+		<result property="boardid" column="BOARD_ID" />
+		<result property="boardcontent" column="BOARD_CONTENT" />
+		<result property="boardimg" column="BOARD_IMG" />
+		<result property="boardviews" column="BOARD_VIEWS" />
+		<result property="boardregdate" column="BOARD_REGDATE" />
+		<association property="member"
+			javaType="YZ.Z1.dto.MemberDto">
+			<result property="user_id" column="user_id" />
+			<result property="user_img" column="user_img" />
+			<result property="user_pr" column="user_pr" />
+		</association>
+	</resultMap>
+</mapper>

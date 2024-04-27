@@ -1,0 +1,121 @@
+.hotViewSwitch {
+  position: absolute;
+  /* hidden */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+#switch1 {
+  position: absolute;
+  /* hidden */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.switch_label1 {
+  position: relative;
+  cursor: pointer;
+  display: inline-block;
+  width: 58px;
+  height: 28px;
+  background: #fff;
+  border: 2px solid #daa;
+  border-radius: 20px;
+  transition: 0.2s;
+}
+.switch_label1:hover {
+  background: #efefef;
+}
+.onf_btn1 {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  display: inline-block;
+  width: 19px;
+  height: 18px;
+  border-radius: 20px;
+  background: #daa;
+  transition: 0.2s;
+}
+
+/* checking style */
+#switch1:checked + .switch_label1 {
+  background: #c44;
+  border: 2px solid #c44;
+}
+
+#switch1:checked + .switch_label1:hover {
+  background: #e55;
+}
+
+/* move */
+#switch1:checked + .switch_label1 .onf_btn1 {
+  left: 33px;
+  background: #fff;
+  box-shadow: 1px 2px 3px #00000020;
+}
+
+/* switch2 */
+#switch2 {
+  position: absolute;
+  /* hidden */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.switch_label2 {
+  position: relative;
+  cursor: pointer;
+  display: inline-block;
+  width: 58px;
+  height: 28px;
+  background: #fff;
+  border: 2px solid #daa;
+  border-radius: 20px;
+  transition: 0.2s;
+}
+.switch_label2:hover {
+  background: #efefef;
+}
+.onf_btn2 {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  display: inline-block;
+  width: 19px;
+  height: 18px;
+  border-radius: 20px;
+  background: #daa;
+  transition: 0.2s;
+}
+
+/* checking style */
+#switch2:checked + .switch_label2 {
+  background: #c44;
+  border: 2px solid #c44;
+}
+
+#switch2:checked + .switch_label2:hover {
+  background: #e55;
+}
+
+/* move */
+#switch2:checked + .switch_label2 .onf_btn2 {
+  left: 33px;
+  background: #fff;
+  box-shadow: 1px 2px 3px #00000020;
+}
+
+#hotText {
+  font-size: medium;
+  margin-left: 14px;
+  font-weight: bold;
+}
+
+#viewText {
+  font-size: medium;
+  margin-left: 12px;
+  font-weight: bold;
+}

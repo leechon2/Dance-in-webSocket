@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="YZ.Z1.dao.MatchingDAO">
+
+	<!--SELECT -->
+	<select id="matchingList" resultType="hashmap">
+	    SELECT * FROM ESC_COORDINATES
+	    WHERE (COORDINATES_LATITUDE BETWEEN #{starty} - 0.0113 AND #{starty} + 0.0113)
+	    AND (COORDINATES_LOGITUDE BETWEEN #{startx} - 0.0090 AND #{startx} + 0.0090)
+	    AND COORDINATES_USER != #{startId}
+	    AND COORDINATES_USER IN (
+	        SELECT USER_ID FROM ESC_USER
+	        WHERE USER_GENDER != (
+	            SELECT USER_GENDER FROM ESC_USER
+	            WHERE USER_ID = #{startId}
+	        )
+	    )
+	</select>
+
+	<select id="profileList" resultType="mdto">
+		SELECT *
+		FROM ESC_USER
+		WHERE
+		USER_ID IN (
+		SELECT MATCHING_RESPID
+		FROM ESC_MATCHING
+		WHERE
+		(MATCHING_REQID = #{startId} AND MATCHING_RESPID = #{distInfUser} AND
+		MATCHING_STATE = 'C')
+		OR (MATCHING_REQID = #{distInfUser} AND
+		MATCHING_RESPID = #{startId} AND
+		MATCHING_STATE = 'C')
+		)
+		AND USER_ID
+		!=
+		#{startId}
+	</select>
+
+	<select id="mbtiResult" resultType="mbtidto">
+		SELECT INTERACTION
+		FROM MBTI
+		WHERE TYPE1 = (
+		SELECT USER_MBTI
+		FROM ESC_USER
+		WHERE USER_ID = #{startId}
+		) AND TYPE2 = (
+		SELECT USER_MBTI
+		FROM ESC_USER
+		WHERE USER_ID = #{user_id}
+		)
+
+	</select>
+	<select id="BookMarkList" resultType="bookmarkdto">
+	<![CDATA[
+		SELECT *
+		FROM ESC_BOOKMARK
+		WHERE BOOKMARK_USERID=#{startId} 
+	 	AND BOOKMARK_REGDATE >= TO_DATE(#{startTime}, 'YYYY-MM-DD')
+    	AND BOOKMARK_REGDATE < (TO_DATE(#{lastTime}, 'YYYY-MM-DD') + 1)
+  
+    ]]>
+	</select>
+
+	<select id="BlockList" resultType="blockdto">
+	<![CDATA[
+		SELECT *
+		FROM ESC_BLOCK
+		WHERE
+		BLOCK_USERID=#{startId} 
+		AND BLOCK_REGDATE >= TO_DATE(#{startTime}, 'YYYY-MM-DD')
+    	AND BLOCK_REGDATE < (TO_DATE(#{lastTime}, 'YYYY-MM-DD') + 1)
+  
+    ]]>
+	</select>
+	<select id="profileInfo" resultType="mdto">
+		SELECT * FROM ESC_USER WHERE
+		USER_ID = #{userId}
+	</select>
+
+	<select id="waitMatcing" resultType="mdto">
+	<![CDATA[
+		SELECT *
+		FROM
+		ESC_USER
+		WHERE
+		USER_ID IN ( SELECT MATCHING_RESPID FROM ESC_MATCHING
+		WHERE
+		MATCHING_REQID =#{startId} AND MATCHING_STATE = 'W' 
+		 AND MATCHING_REGDATE >= TO_DATE(#{startTime}, 'YYYY-MM-DD')
+    AND MATCHING_REGDATE < (TO_DATE(#{lastTime}, 'YYYY-MM-DD') + 1)
+  )
+    ]]>
+
+	</select>
+
+	<select id="mainList" resultType="mdto">
+		SELECT * FROM
+		ESC_USER
+		WHERE
+		USER_ID != #{startId}
+		ORDER BY USER_REGDATE DESC
+	</select>
+
+	<select id="Profile" resultType="mdto">
+
+		SELECT * FROM ESC_USER WHERE
+		USER_ID = #{userId}
+	</select>
+	<select id="calnedarList" resultType="caldto">
+		SELECT * FROM
+		ESC_CALENDAR
+		WHERE CALENDAR_USERID = #{startId}
+		ORDER BY CALENDAR_REGDATE ASC
+	</select>
+
+	<select id="successMatching" resultType="mdto">
+		 <![CDATA[
+  SELECT *
+  FROM ESC_USER
+  WHERE USER_ID IN (
+    SELECT MATCHING_REQID
+    FROM ESC_MATCHING
+    WHERE MATCHING_RESPID = #{startId}
+    AND MATCHING_STATE = 'Y'
+    AND MATCHING_REGDATE >= TO_DATE(#{startTime}, 'YYYY-MM-DD')
+    AND MATCHING_REGDATE < (TO_DATE(#{lastTime}, 'YYYY-MM-DD') + 1)
+  )
+  ]]>
+	</select>
+
+	<select id="respMatcing" resultType="mdto">
+	 <![CDATA[
+		SELECT *
+		FROM
+		ESC_USER
+		WHERE
+		USER_ID IN ( SELECT MATCHING_REQID FROM
+		ESC_MATCHING
+		WHERE
+		MATCHING_RESPID =#{startId} AND MATCHING_STATE = 'W'
+		 AND MATCHING_REGDATE >= TO_DATE(#{startTime}, 'YYYY-MM-DD')
+    AND MATCHING_REGDATE < (TO_DATE(#{lastTime}, 'YYYY-MM-DD') + 1)
+  )
+    ]]>
+	</select>
+	<!--INSERT -->
+	<insert id="respList">
+		INSERT ALL
+		INTO ESC_MATCHING (MATCHING_REQID,
+		MATCHING_RESPID, MATCHING_STATE,
+		MATCHING_REGDATE)
+		VALUES (#{startId},
+		#{distInfUser}, 'C', SYSDATE)
+		INTO ESC_MATCHING (MATCHING_REQID,
+		MATCHING_RESPID, MATCHING_STATE,
+		MATCHING_REGDATE)
+		VALUES
+		(#{distInfUser}, #{startId}, 'C', SYSDATE)
+		SELECT * FROM dual
+
+	</insert>
+
+	<insert id="bookMarkClick">
+		INSERT INTO
+		ESC_BOOKMARK(BOOKMARK_USERID,BOOKMARK_TARGETID,BOOKMARK_REGDATE)
+		VALUES(#{startId},#{userId},SYSDATE)
+	</insert>
+
+	<insert id="insertBlock">
+		INSERT INTO
+		ESC_BLOCK(BLOCK_USERID,BLOCK_TARGETID,BLOCK_REGDATE)
+		VALUES(#{startId},#{userId},SYSDATE)
+
+	</insert>
+
+	<insert id="calendarInfo">
+		INSERT INTO
+		ESC_CALENDAR(CALENDAR_USERID,CALENDAR_TARGETID,CALENDAR_REGDATE,CALENDAR_CONTENT)
+		VALUES(#{calendar_userId},#{calendar_targetId},#{calendar_regdate},#{calendar_content})
+
+	</insert>
+
+	<!--UPDATE -->
+	<update id="updateBlock">
+		UPDATE ESC_MATCHING
+		SET MATCHING_STATE = 'C'
+		WHERE
+		MATCHING_REQID = #{startId}
+		AND MATCHING_RESPID = #{userId}
+	</update>
+	<update id="updateBookMark">
+		UPDATE ESC_MATCHING
+		SET MATCHING_STATE = 'B'
+		WHERE
+		MATCHING_REQID = #{startId}
+		AND MATCHING_RESPID = #{userId}
+	</update>
+	<update id="updateBookMarkDel">
+		UPDATE ESC_MATCHING
+		SET MATCHING_STATE = 'C'
+		WHERE
+		MATCHING_REQID = #{startId}
+		AND MATCHING_RESPID = #{userId}
+	</update>
+	<update id="agreedClick">
+		UPDATE ESC_MATCHING
+		SET MATCHING_STATE = 'W' ,
+		MATCHING_REGDATE = SYSDATE
+		WHERE
+		MATCHING_REQID = #{startId} AND
+		MATCHING_RESPID = #{userId}
+	</update>
+
+	<update id="banClick">
+		UPDATE ESC_MATCHING
+		SET MATCHING_STATE = 'N'
+		WHERE
+		MATCHING_REQID = #{startId} AND MATCHING_RESPID = #{userId}
+	</update>
+
+	<update id="updateMatching">
+		UPDATE ESC_MATCHING
+		SET MATCHING_STATE = 'C'
+		WHERE (
+		MATCHING_REQID =
+		#{startId} AND MATCHING_RESPID = #{userId})or
+		(MATCHING_REQID =
+		#{userId} AND MATCHING_RESPID = #{startId})
+	</update>
+	<update id="successClick">
+		UPDATE ESC_MATCHING
+		SET MATCHING_STATE = 'Y'
+		WHERE (
+		MATCHING_REQID =
+		#{startId} AND MATCHING_RESPID = #{userId})or
+		(MATCHING_REQID =
+		#{userId} AND MATCHING_RESPID = #{startId})
+
+	</update>
+
+	<update id="rejectClick">
+		UPDATE ESC_MATCHING
+		SET MATCHING_STATE = 'C'
+		WHERE (
+		MATCHING_REQID =
+		#{startId} AND MATCHING_RESPID = #{userId})or
+		(MATCHING_REQID =
+		#{userId} AND MATCHING_RESPID = #{startId})
+
+	</update>
+
+
+	<!--DELETE -->
+	<delete id="BookMarkDeleteClick">
+		DELETE FROM ESC_BOOKMARK
+		WHERE BOOKMARK_USERID =
+		#{startId} AND BOOKMARK_TARGETID = #{userId}
+	</delete>
+	<delete id="BlockDeleteClick">
+		DELETE FROM ESC_BLOCK
+		WHERE BLOCK_USERID = #{startId}
+		AND BLOCK_TARGETID = #{userId}
+	</delete>
+</mapper>
